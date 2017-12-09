@@ -15,9 +15,28 @@ connection.connect(function(err){
 	console.log("connected as id " + connection.threadId);
 
 	displayItemsAvailable();
+	// startAgain();
 });
 
 
+//asks whether the user wants to make another purchase or not
+var startAgain = function(){
+	inquirer.prompt([
+		{
+			type: "confirm", 
+			name: "continue", 
+			message: "Would you like to make another purchase?"
+		}
+	]).then(function(response){
+		if (response.continue){
+			choseItem();
+		} else {
+			connection.end();
+		}
+	})
+}
+
+//displays all items available for sale, and all associated information
 var displayItemsAvailable = function(){
 	var query = connection.query(
 		"SELECT * FROM products", 
@@ -31,6 +50,7 @@ var displayItemsAvailable = function(){
 	
 };
 
+//propts use to chose their item and passes the item ID for purchase
 var choseItem = function(){
 	var newStock;
 	inquirer.prompt([
@@ -53,8 +73,9 @@ var choseItem = function(){
 			function(err, res){
 				if (err) throw err;
 				// console.log(res[0])
-				if (res[0].stock_quantity > response.quantity){
-					console.log("Quantity OK");
+				//if statement to check whether or not there is enough stock to purchase
+				if (res[0].stock_quantity >= response.quantity){
+					// console.log("Quantity OK");
 					// console.log(res[0].stock_quantity);
 					// console.log(response.quantity);
 					newStock = res[0].stock_quantity - response.quantity;
@@ -64,6 +85,7 @@ var choseItem = function(){
 					orderTotal(response.inputID, response.quantity);
 				} else {
 					console.log("Insuficient Quantity!");
+					startAgain();
 				}
 			}
 			)
@@ -72,7 +94,7 @@ var choseItem = function(){
 	
 };
 
-
+//updates stock depending on the quantity that user purchases
 var updateStock = function(newStock, itemID){
 	// console.log(newStock);
 	// console.log(parseInt(itemID));	
@@ -87,16 +109,24 @@ var updateStock = function(newStock, itemID){
 			}
 		], 
 		function(err, res){
-			console.log("Stock updated");
+			// console.log("Stock updated");
 		}
 	)
-	console.log(query.sql);
-	connection.end();
+	// console.log(query.sql);
+
 }
 
+//displays the order total based on what was purchase, and how many were purchased
 var orderTotal = function(itemID, quantity){
 	var query = connection.query(
-		""
+		"SELECT price FROM products WHERE ?", 
+		{
+			item_id: itemID,
+		},
+		function(err, res){
+			console.log("Total price: $" + res[0].price);
+			startAgain();
+		}
 		)
 }
 
