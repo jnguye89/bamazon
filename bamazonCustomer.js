@@ -12,7 +12,7 @@ var connection = mysql.createConnection({
 connection.connect(function(err){
 	if (err) throw err;
 
-	console.log("connected as id " + connection.threadId);
+	// console.log("connected as id " + connection.threadId);
 
 	displayItemsAvailable();
 	// startAgain();
@@ -57,7 +57,7 @@ var choseItem = function(){
 		{
 			type: "input", 
 			name: "inputID", 
-			message: "What is the ID number of the item you'd like to purchse?"
+			message: "What is the ID number of the item you'd like to purchase?"
 		},
 		{
 			type: "input", 
