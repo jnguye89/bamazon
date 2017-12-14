@@ -33,7 +33,8 @@ var startAgain = function(){
 		} else {
 			connection.end();
 		}
-	})
+	}
+	)
 }
 
 //displays all items available for sale, and all associated information
@@ -46,7 +47,8 @@ var displayItemsAvailable = function(){
 				console.log("Item ID: " + value.item_id + "\nProduct name: " + value.product_name + "\nDepartment: " + value.department_name + "\nPrice: $" + value.price + "\n");
 			});
 			choseItem();
-		});
+		}
+	);
 	
 };
 
@@ -88,7 +90,7 @@ var choseItem = function(){
 					startAgain();
 				}
 			}
-			)
+		)
 		
 	});
 	
@@ -118,16 +120,39 @@ var updateStock = function(newStock, itemID){
 
 //displays the order total based on what was purchase, and how many were purchased
 var orderTotal = function(itemID, quantity){
+	var totalPurchase;
+	var totalSales = 0;
 	var query = connection.query(
-		"SELECT price FROM products WHERE ?", 
+		"SELECT * FROM products WHERE ?", 
 		{
 			item_id: itemID,
 		},
 		function(err, res){
-			console.log("Total price: $" + res[0].price);
+			totalPurchase = res[0].price * quantity;
+			console.log("Total price: $" + totalPurchase);
+			totalSales = totalPurchase + res[0].product_sales;
+			updateSales(itemID, totalSales);
+		}
+	)
+}
+
+var updateSales = function(itemID, product_sales){
+	var query = connection.query(
+		"UPDATE products SET ? WHERE ?",
+		[
+			{
+				product_sales: product_sales,
+			},
+			{
+				item_id: itemID,
+			}
+		],
+		function(err, res){
+			if (err) throw err;
+			// console.log("Product sales updated");
 			startAgain();
 		}
-		)
+	)
 }
 
 
